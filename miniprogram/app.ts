@@ -9,10 +9,10 @@ App({
     return false;
   },
   onShow() {
-    if (!getToken()) {
-      wx.navigateTo({
-        url: '/pages/login/index'
-      })
-    }
+    // if (!getToken()) {
+    //   wx.navigateTo({
+    //     url: '/pages/login/index'
+    //   })
+    // }
   },
 })

@@ -5,17 +5,21 @@ const baseUrl = 'http://localhost:8080'
 
 wx.cloud.init()
 
-export const get = (uri: string) => {
+interface PageableResponseData {
+  content: Array<never>
+}
+
+export const get = (uri: string, params?:Object) => {
     wx.showLoading({
       title: '加载中'
     })
     
-    return new Promise<any>((resolve, reject)=>{
+    const header = getToken() ?  {'Authorization': 'Bearer ' + getToken()} : {} 
+    return new Promise<PageableResponseData>((resolve, reject)=>{
       wx.request({
         url: baseUrl + uri,
-        header:{
-          'Authorization': 'Bearer ' + getToken()
-        },
+        header,
+        data: params,
         method: 'GET',
         success: (res)=>{
           if(res.statusCode === 401) {
@@ -34,7 +38,13 @@ export const get = (uri: string) => {
           }
           resolve(res.data)
         },
-        fail: reject,
+        fail: () => {
+          wx.showToast({
+            title: '请求错误',
+            icon: 'error'
+          })
+          reject
+        },
         complete: ()=>{
           wx.hideLoading()
         }
@@ -47,7 +57,7 @@ export const post = (uri: string, data: object) => {
     title: '加载中'
   })
   
-  return new Promise<any>((resolve, reject)=>{
+  return new Promise<Object>((resolve, reject)=>{
     wx.request({
       url: baseUrl + uri,
       method: 'POST',
@@ -80,20 +90,6 @@ export const post = (uri: string, data: object) => {
   })
 }
 
-export const cloudPost = (uri: string, data: object) => {
-  return     wx.cloud.callContainer({
-  "config": {
-    "env": "prod-1gj2x32n3415fe1e"
-  },
-  "path": uri,
-  "header": {
-    "X-WX-SERVICE": "yili-music",
-    "content-type": "application/json"
-  },
-  "method": "POST",
-  "data": data
-})
-} 
 
 
 const _handleToken = (header: any) => {
